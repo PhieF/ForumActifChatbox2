@@ -96,9 +96,11 @@ Chatbox.prototype.refresh = function(data) {
 
                     // Format the line of the message
                     var html = "";
-                    if (!(j > 0 && this.messages[j].userId != -1 && lastUsername[chatboxId] == message.userId)) {
+                    if (this.messages[j].userId < 0 || lastUsername[chatboxId] != message.userId) {
+                        if(j>0) html+="</p>";
                         html += "<p class='chatbox_row_" + (j % 2 == 1 ? 2 : 1) + " clearfix'>";
                     }
+                    else html+="<br />";
 
                     if (message.userId == -10) {
                         // this is a system message
@@ -130,10 +132,9 @@ Chatbox.prototype.refresh = function(data) {
                             "</span>";
 
                     }
-                    if (!(j < this.messages.length - 1 && this.messages[j + 1].userId != -1 && this.messages[j + 1].userId == message.userId)) {
-                    } else html += "<br />";
+                  
                     lastUsername[chatboxId] = message.userId;
-                    if (message.userId != -10)
+                    if (message.userId != -10 || message.msgColor == undefined)
                         content[chatboxId] += html;
                     else {
                         for (var cb = 0; cb < chatboxes.length; cb++) {
@@ -183,9 +184,13 @@ if (Chatbox.prototype.appendUserToList == undefined) {
 Chatbox.prototype.send = function(params) {
     if (!params) {
         toAdd = "";
-        if (salon !== "chatbox" && salon != undefined && document.getElementById("message").value.indexOf("/me") == -1)
+        if (salon !== "chatbox" && salon != undefined)
             toAdd = "/" + salon + " ";
-        document.getElementById("message").value = toAdd + document.getElementById("message").value.replace('Lo.mel', 'zizi pissou !!!').replace("kick phoenamandre", "kick Red-scarf").replace("Phie", "Ph[b][/b]ie").replace("kick Phoenamandre", "kick Red-scarf").replace(":snif:", "[img]http://pix.toile-libre.org/upload/original/1479152421.png[/img]").replace(":christclown:", "[img]http://pix.toile-libre.org/upload/original/1479206957.png[/img]").replace(":flown:", "[img]http://phoenamandre.fr/WebNewChatbox/images/flown.png[/img]").replace(":jlm:", "[img]http://phoenamandre.fr/WebNewChatbox/images/melenchon.png[/img]").replace(":jlmc:", "[img]http://phoenamandre.fr/WebNewChatbox/images/melenchonc.png[/img]").replace(":fork:", "[img]http://phoenamandre.fr/WebNewChatbox/images/fork.png[/img]").replace(":nose:", "[img]http://phoenamandre.fr/WebNewChatbox/images/nose.png[/img]").replace(":flowey:", "[img]http://phoenamandre.fr/WebNewChatbox/images/flowey.png[/img]").replace(":morano:", "[img]http://phoenamandre.fr/WebNewChatbox/images/morano.png[/img]").replace(":boutin:", "[img]http://phoenamandre.fr/WebNewChatbox/images/boutin.png[/img]").replace(":coolchrist:", "[img]http://pix.toile-libre.org/upload/original/1481118404.gif[/img]").replace(":bigbounce:", "[img]http://pix.toile-libre.org/upload/original/1490026326.gif[/img]").replace(":sadchrist:", "[img]http://pix.toile-libre.org/upload/original/1479249114.gif[/img]").replace(":sadclown:", "[img]http://pix.toile-libre.org/upload/original/1490027809.png[/img]").replace(":minerva:", "[img]http://phoenamandre.fr/WebNewChatbox/images/mcgonagall.jpg[/img]").replace('Phoenamandre', 'Phœnamandre').replace('Nutella', 'Marijuana').replace("kick Machin", "kick Raven");
+        if(document.getElementById("message").value.indexOf("/me") !== -1){
+            toAdd = "/me "+toAdd;
+            document.getElementById("message").value = document.getElementById("message").value.replace("/me ", '');
+        }
+        document.getElementById("message").value = toAdd + document.getElementById("message").value.replace("kick phoenamandre", "kick Red-scarf").replace("Phie", "Ph[b][/b]ie").replace("kick Phoenamandre", "kick Red-scarf").replace(":snif:", "[img]http://pix.toile-libre.org/upload/original/1479152421.png[/img]").replace(":christclown:", "[img]http://pix.toile-libre.org/upload/original/1479206957.png[/img]").replace(":flown:", "[img]http://phoenamandre.fr/WebNewChatbox/images/flown.png[/img]").replace(":jlm:", "[img]http://phoenamandre.fr/WebNewChatbox/images/melenchon.png[/img]").replace(":jlmc:", "[img]http://phoenamandre.fr/WebNewChatbox/images/melenchonc.png[/img]").replace(":fork:", "[img]http://phoenamandre.fr/WebNewChatbox/images/fork.png[/img]").replace(":nose:", "[img]http://phoenamandre.fr/WebNewChatbox/images/nose.png[/img]").replace(":flowey:", "[img]http://phoenamandre.fr/WebNewChatbox/images/flowey.png[/img]").replace(":morano:", "[img]http://phoenamandre.fr/WebNewChatbox/images/morano.png[/img]").replace(":boutin:", "[img]http://phoenamandre.fr/WebNewChatbox/images/boutin.png[/img]").replace(":coolchrist:", "[img]http://pix.toile-libre.org/upload/original/1481118404.gif[/img]").replace(":bigbounce:", "[img]http://pix.toile-libre.org/upload/original/1490026326.gif[/img]").replace(":sadchrist:", "[img]http://pix.toile-libre.org/upload/original/1479249114.gif[/img]").replace(":sadclown:", "[img]http://pix.toile-libre.org/upload/original/1490027809.png[/img]").replace(":minerva:", "[img]http://phoenamandre.fr/WebNewChatbox/images/mcgonagall.jpg[/img]").replace('Phoenamandre', 'Phœnamandre').replace('Nutella', 'Marijuana').replace("kick Machin", "kick Raven");
         params = $("form[name='post']").serialize();
     }
     chatbox.oldsend(params);

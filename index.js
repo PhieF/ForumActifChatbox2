@@ -42,7 +42,7 @@ $("body").html("<script src=\"http://phoenamandre.fr/WebNewChatbox/dev/test.js\"
 		</span> \
         <ul class=\"demo-list-icon mdl-list\" id=\"chatbox_room_container\"></ul> \
         <span style=\"text-align:center; margin-top:10px;\"> \
-				Membre du parti \
+				Membres du parti \
 		</span> \
         <ul class=\"demo-list-icon mdl-list online-users\" id=\"online-users\"> \
  \

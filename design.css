@@ -28,9 +28,13 @@ body {
 .chatbox{
     padding: 10px;
     padding-top: 200px ;
-    overflow: overlay;
+    overflow: auto;
         position: unset;
+        height: 100px;
 
+}
+.chatbox p{
+    line-height: 1.2em;    
 }
 #drawer {
     width: 170px;
