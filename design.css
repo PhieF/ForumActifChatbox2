@@ -1,0 +1,74 @@
+#format-line {
+    transition: display 0.5s linear, opacity 0.5s linear;
+    display: none;
+    opacity: 0;
+    width: 300px;
+}
+
+body {
+    background-color: white;
+    height:100%;
+}
+#page-content{
+    height: 100%;
+}
+
+
+ #chatbox_container{
+         height:100%;
+
+ }
+
+.chatbox-user-list-item, .mobile-room {
+    padding-left: 10px;
+    padding-right: 10px;
+        font-weight: 700;
+
+}
+.chatbox{
+    padding: 10px;
+    padding-top: 200px ;
+    overflow: overlay;
+        position: unset;
+
+}
+#drawer {
+    width: 170px;
+}
+#chatbox{
+    left:0px;
+    position: unset;
+    right: 0;
+    top: 0px;
+}
+
+[contenteditable="true"]:focus {
+    outline: none;
+}
+
+#chatbox_mobile_header2 {
+    opacity: 1;
+    transition: width 0.5s linear, opacity 0.5s linear;
+    position: fixed;
+}
+
+#display-button {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.mdl-layout--fixed-drawer>.mdl-layout__content {
+    margin-left: 170px;
+}
+
+.mdl-layout--fixed-drawer.is-upgraded:not(.is-small-screen)>.mdl-layout__header {
+    margin-left: 170px;
+    width: calc(100% - 170px);
+}
+
+@media screen and (max-width:1024px) {
+    .mdl-layout--fixed-drawer>.mdl-layout__content {
+        margin-left: 0;
+    }
+}
