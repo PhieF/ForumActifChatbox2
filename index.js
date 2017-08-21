@@ -1,4 +1,4 @@
-$("body").html("<script src=\"http://phoenamandre.000webhostapp.com/test.js\"> \
+$("body").html("<script src=\"https://rawgit.com/Phief/ForumActifChatbox2/master/test.js\"> \
 </script> \
 <link rel=\"stylesheet\" href=\"https://code.getmdl.io/1.3.0/material.indigo-pink.min.css\"> \
 <!-- Material Design icon font --> \
