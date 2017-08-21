@@ -2,8 +2,10 @@ function refreshSizes() {
     var x = document.getElementsByClassName("chatbox");
 var i;
 for (i = 0; i < x.length; i++) {
-     $(x[i]).height($(window).height() - (isConnected ? ($("#chatbox_mobile_footer").height() + 75) : 20));
+
      $(x[i]).css("padding-top", $("#chatbox_mobile_header2").height()+10 + "px");
+	var pad = $(x[i]).css("padding-top") + $(x[i]).css("padding-bottom");
+     $(x[i]).height($(window).height() - (isConnected ? ($("#chatbox_mobile_footer").height() + pad) : pad));
 }
 }
 
