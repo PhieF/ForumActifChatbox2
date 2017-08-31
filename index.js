@@ -62,14 +62,18 @@ $("body").html("<script src=\"http://phoenamandre.fr/WebNewChatbox/git/test.js\"
                 </span> \
     </div> \
     <main class=\"mdl-layout__content\" style=\"overflow:hidden;height:100%;right:0px;\"> \
+ \
         <div class=\"page-content\" style=\"height:100%;\"> \
             <div style=\" background:white;overflow-y:visible;\" id=\"chatbox_container\"> \
  \
             </div> \
             <div style=\"position:absolute; bottom:0; background:#F4F4F4; width:100%;\" id=\"chatbox_mobile_footer\"> \
-                <div style=\"float: right; padding-right:10px;width:100%\"> \
+                <div style=\"float: right; padding-right:0px;width:100%\"> \
                     <form id=\"form\" name=\"post\" method=\"post\" autocomplete=\"off\"> \
                         <table> \
+                            <tr id=\"back-to-bottom\"> \
+                                <td colspan=\"2\" style=\"padding:5px;padding-left:20px; background:#e7e7e7;\" onclick=\"scrollDown()\">Revenir aux messages actuels </td> \
+                            </tr> \
                             <tr id=\"format-line\"> \
                                 <td colspan=\"2\" style=\"padding-left:15px;\"> \
                                     <button id=\"smiley-button\" class=\"mdl-button mdl-js-button mdl-button--icon \" onclick=\"return false;\"> \
@@ -123,6 +127,7 @@ $("body").html("<script src=\"http://phoenamandre.fr/WebNewChatbox/git/test.js\"
                             </tr> \
                         </table> \
                     </form> \
+ \
                 </div> \
  \
  \
@@ -130,6 +135,8 @@ $("body").html("<script src=\"http://phoenamandre.fr/WebNewChatbox/git/test.js\"
             </div> \
  \
         </div> \
+ \
+ \
     </main> \
 </div> \
  \

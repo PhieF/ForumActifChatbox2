@@ -13,6 +13,9 @@ var salon = "chatbox";
 var chatbox;
 var chatboxes = ["#Général", "#WordWar"];
 
+
+var shouldScroll = true;
+
 function refreshSizes() {
     var x = document.getElementsByClassName("chatbox");
     var i;
@@ -163,7 +166,6 @@ function openImg(event) {
 function processSmileyAndDisplay(data) {
     var dialog = document.querySelector('#smiley-dialog');
     var bodyHtml = /<body.*?>([\s\S]*)/.exec(data)[1];
-    console.log(bodyHtml)
     $("#smiley-dialog-content").html(bodyHtml);
     $("#smiley-dialog-content .forumline")[0].style = "background-color:transparent !important; border: 0px solid #d6c8c3 !important;";
     $("#smiley-dialog-content  .genmed")[1].onclick = " \
@@ -554,14 +556,37 @@ $("#text_editor_textarea").ready(function() {
         var cbnum = "";
         if (cb !== 0)
             cbnum = cb;
+        /*if (salon == "chatbox" + cbnum) {
+                            if ((elem.scrollHeight - elem.offsetHeight) !== $(elem).scrollTop() && first > 1)
+                                shouldScroll = false
 
+                        }*/
         $("#chatbox_container").append("<div class='chatbox' id='chatbox" + cbnum + "'> </div>");
+        $("#chatbox" + cbnum).bind('scroll', function(e) {
+            if ((this.scrollHeight - this.offsetHeight) - 20 > $(this).scrollTop() && first > 1) {
+                shouldScroll = false
+                document.getElementById("back-to-bottom").style.display = "table-row";
+
+            } else {
+                shouldScroll = true;
+                $("#back-to-bottom").hide(1000);
+                //$("#" + salon).animate({ scrollTop: $("#" + salon).prop('scrollHeight') }, duration = 1000);
+
+
+            }
+        })
         $("#chatbox_room_container").append("<li><a href=\"#\" class='mobile-room' id='chatbox_selector" + cbnum + "'onclick=\"setChatbox('chatbox" + cbnum + "'); return false;\">" + chatboxes[cb] + " </a>");
 
     }
     setChatbox("chatbox");
     retrieveInitHash();
 })
+
+function scrollDown() {
+
+    $("#" + salon).animate({ scrollTop: $("#" + salon).prop('scrollHeight') }, duration = 1500);
+    shouldScroll = true;
+}
 
 Chatbox.prototype.format = function() {
     var input = $("#message");
@@ -647,10 +672,10 @@ Chatbox.prototype.refresh = function(data) {
             var content = {};
             var lastUsername = {};
             var row = {};
-
             for (var cb = 0; cb < chatboxes.length; cb++) {
                 var cbnum = "";
                 if (cb !== 0) cbnum = cb;
+                var elem = document.getElementById('chatbox' + cbnum);
 
                 content["chatbox" + cbnum] = "";
             }
@@ -721,7 +746,6 @@ Chatbox.prototype.refresh = function(data) {
 
                     lastUsername[chatboxId] = message.userId;
                     if ((message.userId != -10 || message.msg.indexOf("<strong>*") === 0)) {
-                        console.log($.inArray(message.userId, muted))
                         if ($.inArray(message.userId, muted) === -1)
                             content[chatboxId] += html;
                     } else {
@@ -743,10 +767,12 @@ Chatbox.prototype.refresh = function(data) {
                         var elem = document.getElementById('chatbox' + cbnum);
                         if (elem != null) {
                             elem.innerHTML = content["chatbox" + cbnum];
-                            if ($(elem).prop('scrollHeight') - $(elem).scrollTop() < 600)
-                                $(elem).animate({ scrollTop: $(elem).prop('scrollHeight') }, duration = 1000);
-                            else {
-                                $(elem).scrollTop($(elem).prop('scrollHeight') * 4);
+                            if (shouldScroll) {
+                                if ($(elem).prop('scrollHeight') - $(elem).scrollTop() < 600 && false)
+                                    $(elem).animate({ scrollTop: $(elem).prop('scrollHeight') }, duration = 1000);
+                                else {
+                                    $(elem).scrollTop($(elem).prop('scrollHeight') * 4);
+                                }
                             }
                             first = first + 1;
                         }
