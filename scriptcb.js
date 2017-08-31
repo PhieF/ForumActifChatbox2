@@ -1,5 +1,5 @@
 var script = ""
-var rootUrl = "https://phoenamandre.000webhostapp.com/";
+var rootUrl = "http://phoenamandre.fr/WebNewChatbox/git";
 var userId = -1;
 var isConnected = false;
 var isDarkTheme = false;
