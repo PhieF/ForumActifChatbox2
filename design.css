@@ -13,6 +13,10 @@ body {
     height: 100%;
 }
 
+.option-username{
+position: absolute;
+  right: 6px; 
+}
 
  #chatbox_container{
          height:100%;
@@ -26,15 +30,17 @@ body {
 
 }
 .chatbox{
-    padding: 10px;
+    padding-bottom: 10px;
     padding-top: 200px ;
     overflow: auto;
         position: unset;
+        
         height: 100px;
 
 }
 .chatbox p{
-    line-height: 1.2em;    
+    line-height: 1.2em;  
+    margin:0px;  
 }
 #drawer {
     width: 170px;
@@ -69,6 +75,18 @@ body {
 .mdl-layout--fixed-drawer.is-upgraded:not(.is-small-screen)>.mdl-layout__header {
     margin-left: 170px;
     width: calc(100% - 170px);
+}
+.chatbox_row_1{
+    background: rgba(44, 44, 44, 0.04);
+    padding-left: 10px;
+    padding-right: 10px;
+    
+}
+
+.chatbox_row{
+    padding-left: 10px;
+    padding-right: 10px;
+    
 }
 
 @media screen and (max-width:1024px) {

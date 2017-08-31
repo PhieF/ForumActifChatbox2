@@ -1,4 +1,4 @@
-$("body").html("<script src=\"http://phoenamandre.fr/WebNewChatbox/dev/test.js\"> \
+$("body").html("<script src=\"http://phoenamandre.fr/WebNewChatbox/git/test.js\"> \
 </script> \
 <link rel=\"stylesheet\" href=\"https://code.getmdl.io/1.3.0/material.indigo-pink.min.css\"> \
 <!-- Material Design icon font --> \
@@ -16,7 +16,7 @@ $("body").html("<script src=\"http://phoenamandre.fr/WebNewChatbox/dev/test.js\"
                 <button style=\"right:10px;\" id=\"hide-button\" onclick=\"\" class=\"mdl-button mdl-js-button mdl-button--icon\"> \
                 <i class=\"material-icons\">arrow_back</i> \
                 </button> \
-                <button style=\"right:10px;\" id=\"connect-button\" onclick=\"chatbox.connect();\" class=\"mdl-button mdl-js-button mdl-button--icon\"> \
+                <button style=\"right:10px;\" id=\"connect-button\" onclick=\"if(!chatbox.connected)chatbox.connect();else chatbox.disconnect();\" class=\"mdl-button mdl-js-button mdl-button--icon\"> \
                     <i class=\"material-icons\">input</i> \
                      \
                 </button> \
@@ -36,11 +36,15 @@ $("body").html("<script src=\"http://phoenamandre.fr/WebNewChatbox/dev/test.js\"
             .demo-list-icon { \
                 width: 160px; \
             } \
-</style> \
-<span style=\"text-align:center; margin-top:10px;\"> \
+        </style> \
+ \
+        <span style=\"text-align:center; margin-top:10px;\"> \
 				Salons \
 		</span> \
-        <ul class=\"demo-list-icon mdl-list\" id=\"chatbox_room_container\"></ul> \
+        <ul class=\"demo-list-icon mdl-list\" id=\"chatbox_room_container\"> \
+ \
+            <!-- <li><a href=\"org.jitsi.meet:https://framatalk.org/jeunesecrivains\" onclick = 'openVocal(); return false;' class='mobile-room' target=\"_blank\">Vidéoconférence</a></li>--> \
+        </ul> \
         <span style=\"text-align:center; margin-top:10px;\"> \
 				Membres du parti \
 		</span> \
@@ -53,11 +57,14 @@ $("body").html("<script src=\"http://phoenamandre.fr/WebNewChatbox/dev/test.js\"
         <ul class=\"demo-list-icon mdl-list online-users\" id=\"away-users\"> \
  \
         </ul> \
+        <span style=\"text-align:center; margin-top:10px;\"> \
+                <a href=\"http://jeunesecrivains.superforum.fr/chatbox/index.forum\" class='mobile-room'>Ancienne chatbox</a> \
+                </span> \
     </div> \
-    <main class=\"mdl-layout__content\" style=\"overflow:hidden;height:100%;\"> \
+    <main class=\"mdl-layout__content\" style=\"overflow:hidden;height:100%;right:0px;\"> \
         <div class=\"page-content\" style=\"height:100%;\"> \
             <div style=\" background:white;overflow-y:visible;\" id=\"chatbox_container\"> \
-				 \
+ \
             </div> \
             <div style=\"position:absolute; bottom:0; background:#F4F4F4; width:100%;\" id=\"chatbox_mobile_footer\"> \
                 <div style=\"float: right; padding-right:10px;width:100%\"> \
@@ -89,6 +96,9 @@ $("body").html("<script src=\"http://phoenamandre.fr/WebNewChatbox/dev/test.js\"
                                     <button id=\"color-button\" class=\"mdl-button mdl-js-button mdl-button--icon \" onclick=\"return false;\"> \
                                     <i class=\"material-icons\">color_lens</i> \
                                     </button> \
+                                    <button id=\"img-button\" class=\"mdl-button mdl-js-button mdl-button--icon \" onclick=\"return false;\"> \
+<i class=\"material-icons\">add_a_photo</i> \
+                                    </button> \
  \
  \
                             </tr> \
@@ -104,7 +114,7 @@ $("body").html("<script src=\"http://phoenamandre.fr/WebNewChatbox/dev/test.js\"
                                     position:absolute;  \
                                     bottom:-5px; \
                                     padding-right:50px; width:100%;\"> \
-                                        <input name=\"scolor\" id=\"scolor\" value=\"#CC9966\" type=\"hidden\"> \
+                                        <input name=\"scolor\" id=\"scolor\" type=\"hidden\"> \
                                         <input onblur=\"this.focus()\" autofocus style=\"outline: none;width:100%;resize: none;height:20px; overflow:hidden;\" class=\"mdl-textfield__input \" type=\"text \" rows=\"1\" autocomplete=\"on\" name=\"message\" id=\"message\"></input> \
                                         <label class=\"mdl-textfield__label \" for=\"sample1 \">Text...</label> \
                                     </div> \
@@ -140,5 +150,17 @@ $("body").html("<script src=\"http://phoenamandre.fr/WebNewChatbox/dev/test.js\"
         <div id=\"color-dialog-content\" style=\"overflow-x: auto;  padding:0px;\"></div> \
     </div> \
 </dialog> \
- <script src='"+rootUrl+"/scriptAfterLoaded.js'> </script>\
+ \
+<dialog id=\"img-dialog\" class=\"mdl-dialog\"> \
+    <div class=\"mdl-dialog__content\" style=\"padding:0px;\"> \
+        <a onclick=\"closeImgDialog(); return false;\" href=\"#\">Fermer</a> \
+ \
+        <div id=\"img-dialog-content\" style=\"overflow-x: auto;  padding:0px;\"> \
+            <div id=\"p2\" class=\"mdl-progress mdl-js-progress mdl-progress__indeterminate\"></div> \
+ \
+        </div> \
+    </div> \
+</dialog> \
+ \
+<input type=\"hidden\" id=\"text_editor_textarea\" /> \ <script src='"+rootUrl+"/scriptAfterLoaded.js'> </script>\
  <link rel='stylesheet' href='"+rootUrl+"/design.css'/>");

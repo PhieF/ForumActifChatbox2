@@ -1,6 +1,5 @@
 ;
 (function() {
-    "use strict";
 
     /**
      * @license
@@ -27,7 +26,7 @@
      * @author Jason Mayes.
      */
     /* exported componentHandler */
-
+var MaterialLayout;
     // Pre-defining the componentHandler interface, for closure documentation and
     // static verification.
     var componentHandler = {
@@ -87,7 +86,6 @@
     };
 
     componentHandler = (function() {
-        'use strict';
 
         /** @type {!Array<componentHandler.ComponentConfig>} */
         var registeredComponents_ = [];
@@ -482,7 +480,6 @@
     window['componentHandler'] = componentHandler;
 
     window.addEventListener('load', function() {
-        'use strict';
 
         /**
          * Performs a "Cutting the mustard" test. If the browser supports the features
@@ -1133,10 +1130,9 @@
      * @constructor
      * @param {HTMLElement} element The element that will be upgraded.
      */
-    var MaterialMenu = function MaterialMenu(element) {
+    MaterialMenu = function MaterialMenu(element) {
         this.element_ = element;
         // Initialize instance.
-        this.init();
     };
     window['MaterialMenu'] = MaterialMenu;
     /**
@@ -1222,6 +1218,7 @@
                     forEl.addEventListener('click', this.handleForClick_.bind(this));
                     forEl.addEventListener('keydown', this.handleForKeyboardEvent_.bind(this));
                 }
+            
             }
             var items = this.element_.querySelectorAll('.' + this.CssClasses_.ITEM);
             this.boundItemKeydown_ = this.handleItemKeyboardEvent_.bind(this);

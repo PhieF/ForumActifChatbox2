@@ -16,6 +16,12 @@ function getParameterByName(name, url) {
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
+function teardown(fnc) {}
+
+function setup(fnc) {}
+
+function suite(fnc, tet) {}
+
 function reload_js() {
     i++;
     var head = document.getElementsByTagName('head')[0];
@@ -37,8 +43,14 @@ function retrieveInitHash() {
         success: function(response) {
 
             var myRegexp = /(?:^|\s)new Chatbox\(\"(.*?)\",(?:\s|$)/g;
-            var myRegexp2 = /(?:^|\s)chatbox\\\.userId(.*?),(?:\s|$)/g;
-            //alert( myRegexp2.exec(response));
+            var myRegexp2 = /(?:^|\s).*chatbox.connected\ \=\ (.*?);.*(?:\s|$)/g;
+            var myRegexpUserId = /(?:^|\s).*chatbox.userId\ \=\ (.*?);.*(?:\s|$)/g;
+
+            var data = response;
+
+            /*  myWindow = window.open("data:text/html," + encodeURIComponent(data),
+                                     "_blank", "width=200,height=100");
+              myWindow.focus();*/
             var match = myRegexp.exec(response);
             var archives = getParameterByName("archives");
             if (archives == null)
@@ -46,19 +58,92 @@ function retrieveInitHash() {
 
             chatbox = new Chatbox(match[1], { "archives": archives, "avatar": 1 });
 
-            chatbox.userId = 1;
-            chatbox.connected = true;
+            chatbox.userId = myRegexpUserId.exec(response)[1];
+            chatbox.connected = myRegexp2.exec(response)[1] == "true"; //was a string...
             chatbox.defaultColor = '#5f6363';
-
             $('#divcolor').css('display', 'inline-block');
             $('#divsmilies').css('display', 'inline-block');
 
             chatbox.init();
+            setIsConnected(chatbox.connected);
 
         }
     });
 
 }
+var servImgAccount;
+var servImgId;
+var servImgF;
+var servImgMode;
+var servimgDomain;
+var imgIframe;
+var retrieveUrlMobile = "index.forum?mobile&redirect=%2Ft11714-le-guide-de-presentation-du-parfait-jeune-ecrivain"
+var retrieveUrlPC = "t11714-le-guide-de-presentation-du-parfait-jeune-ecrivain";
+var retrieveUrl = retrieveUrlPC;
+
+function retrieveImgCode() {
+    $.ajax({
+        url: retrieveUrl,
+        type: 'get',
+        cache: false,
+        success: function(response) {
+            var scriptIsolationR = /(?:^|\s).*(servImgAccount[\s\S]*?)INTRANET.*(?:\s|$)/g;
+            var exec = scriptIsolationR.exec(response);
+            if (exec == null) {
+                retrieveUrl = retrieveUrlMobile;
+                retrieveImgCode();
+                return;
+            }
+            responseIsolated = exec[1]
+            var servImgAccountR = /(?:^|\s).*servImgAccount\ \=\ \'(.*?)\';.*(?:\s|$)/g;
+            var servImgIdR = /(?:^|\s).*servImgId\ \=\ \'(.*?)\';.*(?:\s|$)/g;
+            var servImgFR = /(?:^|\s).*servImgF\ \=\ \'(.*?)\';.*(?:\s|$)/g;
+            var servImgModeR = /(?:^|\s).*servImgMode\ \=\ \'(.*?)\';.*(?:\s|$)/g;
+            var servimgDomainR = /(?:^|\s).*servimgDomain\ \=\ \'(.*?)\';.*(?:\s|$)/g;
+
+            servImgAccount = servImgAccountR.exec(responseIsolated)[1];
+
+            servImgId = servImgIdR.exec(responseIsolated)[1];
+            servImgF = servImgFR.exec(responseIsolated)[1];
+            servImgMode = servImgModeR.exec(responseIsolated)[1];
+            servimgDomain = servimgDomainR.exec(responseIsolated)[1];
+            var urlAddress = "https://servimg.com/multiupload.php?&mode=fae&account=" + servImgAccount + "&id=" + servImgId + "&f=" + servImgF;
+            imgIframe = "<iframe id=\"obj_servimg\" src=\"" + urlAddress + "\" border=\"0\" width=\"540\" height=\"285\"></iframe>";
+            $("#img-dialog-content").html(imgIframe);
+
+        }
+    });
+
+}
+
+var onImgMessage = function(e) {
+    if (e.data.from === 'servimg') $('#message').val($("#message").val() + e.data.data.replace(/\[url=([^\s\]]+)\s*\](.*(?=\[\/url\]))\[\/url\]/g, '$1'))
+    var dialog = document.querySelector('#img-dialog');
+    dialog.close();
+}
+
+function openImg(event) {
+    if (imgIframe == null) {
+        retrieveImgCode();
+    }
+    var dialog = document.querySelector('#img-dialog');
+    if ($(document).width() > 550)
+        dialog.style.width = "540px";
+    else
+        dialog.style.width = $(document).width() - 20 + 'px';
+
+    dialog.addEventListener('click', function(event) {
+        var rect = dialog.getBoundingClientRect();
+        var isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height && rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
+        if (!isInDialog) {
+            dialog.close();
+        }
+    });
+    dialog.showModal();
+    return false;
+}
+
+
 /*
 function openSmiley(event) {
     $.ajax({
@@ -143,6 +228,24 @@ function openColors(event) {
     return false;
 }
 
+function openVocal() {
+    if (navigator.userAgent.match(/Android/i) ||
+        navigator.userAgent.match(/iPhone/i) ||
+        navigator.userAgent.match(/iPad/i) ||
+        navigator.userAgent.match(/iPod/i)
+    ) {
+        if (confirm('Si vous n\'avez pas l\'application Jitsy Meet (gratuite et opensource) le chat vocal ne fonctionnera pas. Souhaitez vous l\'installer ?')) {
+            if (navigator.userAgent.match(/Android/i))
+                window.open("https://play.google.com/store/apps/details?id=org.jitsi.meet", "_empty");
+            else {
+                window.open("https://itunes.apple.com/us/app/jitsi-meet/id1165103905?mt=8", "_empty");
+            }
+        } else
+            window.open("org.jitsi.meet:https://framatalk.org/jeunesecrivains", "_empty");
+    } else
+        window.open("https://framatalk.org/jeunesecrivains", "_empty");
+}
+
 function Set(string) {
     alert(string);
     var color = ValidateColor(string);
@@ -211,14 +314,6 @@ script2.src = rootUrl + '/polyfill/dialog-polyfill.js?vd=' + Math.random();
 head.appendChild(script2);
 script2 = document.createElement('script');
 script2.type = 'text/javascript';
-script2.src = rootUrl + '/polyfill/bower.js?vd=' + Math.random();
-head.appendChild(script2);
-script2 = document.createElement('script');
-script2.type = 'text/javascript';
-script2.src = rootUrl + '/polyfill/package.js?vd=' + Math.random();
-head.appendChild(script2);
-script2 = document.createElement('script');
-script2.type = 'text/javascript';
 script2.src = rootUrl + '/polyfill/suite.js?vd=' + Math.random();
 head.appendChild(script2);
 var script3 = document.createElement('script');
@@ -230,32 +325,32 @@ script4.type = 'text/javascript';
 script4.src = rootUrl + '/smileys cb/index.js?vd=' + Math.random();
 head.appendChild(script4);
 
-	setChatbox = function(chat){
-		salon = chat;
-		for(var cb = 0; cb< chatboxes.length; cb ++ ){
-			var cbnum = "";
-			if(cb!==0){
-				cbnum =cb;
-			}
-			var name = "chatbox"+cbnum;
-			var nameButtom = "chatbox_selector"+cbnum;
-			if(name==salon){
-				 document.getElementById(name).style.display="block";
-		document.getElementById(nameButtom).style.color="black";
-				 $("#chatbox"+cbnum).scrollTop($("#chatbox"+cbnum).prop('scrollHeight')*2);
-				 
-			 }
-			else{
-				 document.getElementById(name).style.display="none";
-		document.getElementById(nameButtom).style.color="grey";
-		}
-	}
-	}
-	function showChatboxMembers(){
-		document.getElementById("chatbox_members").style.display = "inline";
+setChatbox = function(chat) {
+    salon = chat;
+    for (var cb = 0; cb < chatboxes.length; cb++) {
+        var cbnum = "";
+        if (cb !== 0) {
+            cbnum = cb;
+        }
+        var name = "chatbox" + cbnum;
+        var nameButtom = "chatbox_selector" + cbnum;
+        if (name == salon) {
+            document.getElementById(name).style.display = "block";
+            document.getElementById(nameButtom).style.color = "black";
+            $("#chatbox" + cbnum).scrollTop($("#chatbox" + cbnum).prop('scrollHeight') * 2);
+
+        } else {
+            document.getElementById(name).style.display = "none";
+            document.getElementById(nameButtom).style.color = "grey";
+        }
+    }
+}
+
+function showChatboxMembers() {
+    document.getElementById("chatbox_members").style.display = "inline";
 
 
-	}
+}
 
 var link = document.createElement('link');
 link.rel = 'stylesheet';
@@ -263,7 +358,6 @@ link.type = 'text/css';
 link.href = rootUrl + '/polyfill/dialog-polyfill.css';
 link.media = 'all';
 head.appendChild(link);
-retrieveInitHash();
 reload_js();
 
 function setTheme(th) {
@@ -286,3 +380,6 @@ function setTheme(th) {
 
 
 //smileys
+
+var alwaysDisplayUsername = false;
+var displayTime = false;
