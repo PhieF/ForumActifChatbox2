@@ -31,7 +31,6 @@ body {
 }
 
 .chatbox {
-    transition: height 0.5s;
     padding-bottom: 10px;
     padding-top: 200px;
     overflow: auto;

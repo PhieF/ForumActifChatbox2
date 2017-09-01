@@ -23,11 +23,13 @@ function refreshSizes() {
         $(x[i]).css("padding-top", $("#chatbox_mobile_header2").height() + 10 + "px");
         var substract = parseInt($(x[i]).css("padding-top")) + parseInt($(x[i]).css("padding-bottom"));
         $(x[i]).height($("#chatbox_container").height() - (isConnected ? ($("#chatbox_mobile_footer").height() + substract) : 0));
-
+        if (shouldScroll && (x[i].scrollHeight - x[i].offsetHeight) - 20 > $(x[i]).scrollTop())
+            $(x[i]).scrollTop($(x[i]).prop('scrollHeight') * 4);
     }
+
 }
 
-setInterval(refreshSizes, 500);
+//setInterval(refreshScrollStatus, 500);
 
 $("#form").submit(function() {
     sendForm();
@@ -253,10 +255,10 @@ function Set(string) {
 
 function setIsConnected(co) {
     isConnected = co;
-    if (!isConnected) {
+    /*if (!isConnected) {
         $("#chatbox_mobile_footer").hide();
     } else
-        $("#chatbox_mobile_footer").show();
+        $("#chatbox_mobile_footer").show();*/
 }
 
 function closeSmilieDialog() {
@@ -514,6 +516,7 @@ $("#text_editor_textarea").ready(function() {
 
         }
         document.getElementById('message').focus();
+        refreshScrollStatus();
         return false;
     });
     var dialogButton = document.querySelector('#button');
@@ -563,17 +566,7 @@ $("#text_editor_textarea").ready(function() {
                         }*/
         $("#chatbox_container").append("<div class='chatbox' id='chatbox" + cbnum + "'> </div>");
         $("#chatbox" + cbnum).bind('scroll', function(e) {
-            if ((this.scrollHeight - this.offsetHeight) - 20 > $(this).scrollTop() && first > 1) {
-                shouldScroll = false
-                document.getElementById("back-to-bottom").style.display = "table-row";
-
-            } else {
-                shouldScroll = true;
-                $("#back-to-bottom").hide(1000);
-                //$("#" + salon).animate({ scrollTop: $("#" + salon).prop('scrollHeight') }, duration = 1000);
-
-
-            }
+            refreshScrollStatus();
         })
         $("#chatbox_room_container").append("<li><a href=\"#\" class='mobile-room' id='chatbox_selector" + cbnum + "'onclick=\"setChatbox('chatbox" + cbnum + "'); return false;\">" + chatboxes[cb] + " </a>");
 
@@ -581,6 +574,25 @@ $("#text_editor_textarea").ready(function() {
     setChatbox("chatbox");
     retrieveInitHash();
 })
+
+function refreshScrollStatus() {
+    var cb = document.getElementById(salon);
+
+    if ((cb.scrollHeight - cb.offsetHeight) - 20 > $(cb).scrollTop() && first > 1) {
+        shouldScroll = false
+        document.getElementById("back-to-bottom").style.display = "table-row";
+
+    } else {
+        shouldScroll = true;
+        $("#back-to-bottom").hide();
+
+        //$("#" + salon).animate({ scrollTop: $("#" + salon).prop('scrollHeight') }, duration = 1000);
+
+
+    }
+    refreshSizes()
+}
+window.addEventListener('resize', refreshScrollStatus)
 
 function scrollDown() {
 
