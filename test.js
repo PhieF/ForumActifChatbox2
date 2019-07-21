@@ -1272,8 +1272,9 @@
      */
     MaterialMenu.prototype.handleForClick_ = function(evt) {
         if (this.element_ && this.forElement_) {
+            var rightButton = jQuery(this.forElement_).offset().left + jQuery(this.forElement_).width()
             var rect = this.forElement_.getBoundingClientRect();
-            var forRect = this.forElement_.parentElement.getBoundingClientRect();
+            var forRect = this.forElement_.getBoundingClientRect();
             if (this.element_.classList.contains(this.CssClasses_.UNALIGNED)) {} else if (this.element_.classList.contains(this.CssClasses_.BOTTOM_RIGHT)) {
                 // Position below the "for" element, aligned to its right.
                 this.container_.style.right = forRect.right - rect.right + 'px';

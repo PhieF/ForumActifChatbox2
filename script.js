@@ -1,12 +1,10 @@
 var muted = [];
 var refreshInt = undefined
 
-
 /* Needed for the "reduce header bar" */
 var MaterialLayout = undefined
 var oldToggle = undefined
 var originalDrawerButton = undefined
-var MaterialMenu = undefined
 var usCount = 0;
 
 var salon = "chatbox";
@@ -14,7 +12,12 @@ var chatbox;
 var chatboxes = ["#Général", "#WordWar"];
 
 
+
+var alwaysDisplayUsername = my_getcookie('CB_username') == "true";
+var displayTime = my_getcookie('CB_time') == "true";
+
 var shouldScroll = true;
+var isNotUserScroll = false;
 
 function refreshSizes() {
     var x = document.getElementsByClassName("chatbox");
@@ -23,20 +26,22 @@ function refreshSizes() {
         $(x[i]).css("padding-top", $("#chatbox_mobile_header2").height() + 10 + "px");
         var substract = parseInt($(x[i]).css("padding-top")) + parseInt($(x[i]).css("padding-bottom"));
         $(x[i]).height($("#chatbox_container").height() - (isConnected ? ($("#chatbox_mobile_footer").height() + substract) : 0));
-        if (shouldScroll && (x[i].scrollHeight - x[i].offsetHeight) - 20 > $(x[i]).scrollTop())
+        if (shouldScroll && (x[i].scrollHeight - x[i].offsetHeight) - 20 > $(x[i]).scrollTop()) {
+
             $(x[i]).scrollTop($(x[i]).prop('scrollHeight') * 4);
+        }
     }
 
 }
 
 //setInterval(refreshScrollStatus, 500);
 
-$("#form").submit(function() {
+$("#form").submit(function () {
     sendForm();
     return false;
 });
 
-setChatbox = function(chat) {
+setChatbox = function (chat) {
     salon = chat;
     for (var cb = 0; cb < chatboxes.length; cb++) {
         var cbnum = "";
@@ -62,7 +67,7 @@ function retrieveInitHash() {
         url: "chatbox/index.forum",
         type: 'get',
         cache: false,
-        success: function(response) {
+        success: function (response) {
 
             var myRegexp = /(?:^|\s)new Chatbox\(\"(.*?)\",(?:\s|$)/g;
             var myRegexp2 = /(?:^|\s).*chatbox.connected\ \=\ (.*?);.*(?:\s|$)/g;
@@ -78,7 +83,10 @@ function retrieveInitHash() {
             if (archives == null)
                 archives = 0;
 
-            chatbox = new Chatbox(match[1], { "archives": archives, "avatar": 1 });
+            chatbox = new Chatbox(match[1], {
+                "archives": archives,
+                "avatar": 1
+            });
 
             chatbox.userId = myRegexpUserId.exec(response)[1];
             chatbox.connected = myRegexp2.exec(response)[1] == "true"; //was a string...
@@ -108,7 +116,7 @@ function retrieveImgCode() {
         url: retrieveUrl,
         type: 'get',
         cache: false,
-        success: function(response) {
+        success: function (response) {
             var scriptIsolationR = /(?:^|\s).*(servImgAccount[\s\S]*?)INTRANET.*(?:\s|$)/g;
             var exec = scriptIsolationR.exec(response);
             if (exec == null) {
@@ -138,7 +146,7 @@ function retrieveImgCode() {
 
 }
 
-var onImgMessage = function(e) {
+var onImgMessage = function (e) {
     if (e.data.from === 'servimg') $('#message').val($("#message").val() + e.data.data.replace(/\[url=([^\s\]]+)\s*\](.*(?=\[\/url\]))\[\/url\]/g, '$1'))
     var dialog = document.querySelector('#img-dialog');
     dialog.close();
@@ -154,7 +162,7 @@ function openImg(event) {
     else
         dialog.style.width = $(document).width() - 20 + 'px';
 
-    dialog.addEventListener('click', function(event) {
+    dialog.addEventListener('click', function (event) {
         var rect = dialog.getBoundingClientRect();
         var isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height && rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
         if (!isInDialog) {
@@ -176,7 +184,7 @@ function processSmileyAndDisplay(data) {
                 return false;\
             ";
     $("#smiley-dialog-content  .genmed")[1].href = "javascript:closeSmilieDialog()"
-    dialog.addEventListener('click', function(event) {
+    dialog.addEventListener('click', function (event) {
         var rect = dialog.getBoundingClientRect();
         var isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height && rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
         if (!isInDialog) {
@@ -192,10 +200,10 @@ function openColors(event) {
         url: "/chatbox/selectcolor",
         type: 'get',
         cache: false,
-        beforeSend: function(request) {
+        beforeSend: function (request) {
             request.setRequestHeader("User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:53.0) Gecko/20100101 Firefox/53.0");
         },
-        success: function(data) {
+        success: function (data) {
             var dialog = document.querySelector('#color-dialog');
             $("#color-dialog-content").html(data + "\
             <script type=\"text/javascript\">\
@@ -205,7 +213,7 @@ function openColors(event) {
                 }\
                 </script>\
             ");
-            dialog.addEventListener('click', function(event) {
+            dialog.addEventListener('click', function (event) {
                 var rect = dialog.getBoundingClientRect();
                 var isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height && rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
                 if (!isInDialog) {
@@ -255,10 +263,10 @@ function Set(string) {
 
 function setIsConnected(co) {
     isConnected = co;
-    /*if (!isConnected) {
+    if (!isConnected) {
         $("#chatbox_mobile_footer").hide();
     } else
-        $("#chatbox_mobile_footer").show();*/
+        $("#chatbox_mobile_footer").show();
 }
 
 function closeSmilieDialog() {
@@ -308,6 +316,7 @@ function sendForm() {
             case '/exit':
                 window.chatbox.disconnect();
                 break;
+            break;
             default:
                 window.chatbox.send();
                 break;
@@ -317,7 +326,7 @@ function sendForm() {
         $("#message").focus();
     }
 }
-Chatbox.prototype.clearUserList = function() {
+Chatbox.prototype.clearUserList = function () {
     if (document.getElementById('online-users').getElementsByClassName('is-visible').length <= 0) {
         $("#online-users").empty();
     }
@@ -325,8 +334,12 @@ Chatbox.prototype.clearUserList = function() {
         $("#away-users").empty();
     }
 }
-
-Chatbox.prototype.appendUserToList = function(user) {
+Chatbox.prototype.oldDisconnect = Chatbox.prototype.disconnect;
+Chatbox.prototype.disconnect = function () {
+    setIsConnected(false)
+    this.oldDisconnect()
+}
+Chatbox.prototype.appendUserToList = function (user) {
     var me = this.users[this.userId];
     usCount = usCount + 1;
     if (user.color == "none" && isDarkTheme)
@@ -353,11 +366,11 @@ Chatbox.prototype.appendUserToList = function(user) {
         $(list).append('<li>' + username + '</li>');
         var element = document.getElementById('user-menu-' + usCount);
         var elemMaterial = new MaterialMenu(element)
-            //adding items
+        //adding items
         var profil = document.createElement('li');
         profil.classList.add("mdl-menu__item");
         profil.innerHTML = "Profil";
-        profil.addEventListener('click', function() {
+        profil.addEventListener('click', function () {
             var win = window.open("/u" + user.id, '_blank');
             win.focus();
         });
@@ -365,7 +378,7 @@ Chatbox.prototype.appendUserToList = function(user) {
         var mp = document.createElement('li');
         mp.classList.add("mdl-menu__item");
         mp.innerHTML = "Message";
-        mp.addEventListener('click', function() {
+        mp.addEventListener('click', function () {
             var win = window.open('/privmsg?mode=post&u=' + user.id, '_blank');
             win.focus();
         });
@@ -389,7 +402,7 @@ Chatbox.prototype.appendUserToList = function(user) {
             $(unmute).attr("data-mdl-disabled", true);
 
         unmute.innerHTML = "Afficher"
-        mute.addEventListener('click', function() {
+        mute.addEventListener('click', function () {
             muted.push(user.id);
             $(mute).attr("data-mdl-disabled", true);
             $(unmute).removeAttr("data-mdl-disabled");
@@ -397,7 +410,7 @@ Chatbox.prototype.appendUserToList = function(user) {
 
 
         });
-        unmute.addEventListener('click', function() {
+        unmute.addEventListener('click', function () {
             muted.splice(muted.indexOf(user.id), 1);
             $(unmute).attr("data-mdl-disabled", true);
             $(mute).removeAttr("data-mdl-disabled");
@@ -411,14 +424,14 @@ Chatbox.prototype.appendUserToList = function(user) {
                 var kick = document.createElement('li');
                 kick.classList.add("mdl-menu__item");
                 kick.innerHTML = "Kicker";
-                kick.addEventListener('click', function() {
+                kick.addEventListener('click', function () {
                     action_user("kick", user.username);
                 });
                 element.append(kick)
                 var ban = document.createElement('li');
                 ban.classList.add("mdl-menu__item");
                 ban.innerHTML = "Bannir";
-                ban.addEventListener('click', function() {
+                ban.addEventListener('click', function () {
                     action_user("ban", user.username);
                 });
                 $(element).append(ban);
@@ -427,7 +440,7 @@ Chatbox.prototype.appendUserToList = function(user) {
                 var mod = document.createElement('li');
                 mod.classList.add("mdl-menu__item");
                 mod.innerHTML = "Retirer modération";
-                mod.addEventListener('click', function() {
+                mod.addEventListener('click', function () {
                     action_user("unmod", user.username);
                 });
                 $(element).append(mod)
@@ -435,7 +448,7 @@ Chatbox.prototype.appendUserToList = function(user) {
                 var mod = document.createElement('li');
                 mod.classList.add("mdl-menu__item");
                 mod.innerHTML = "Donner modération";
-                mod.addEventListener('click', function() {
+                mod.addEventListener('click', function () {
                     action_user("mod", user.username);
                 });
                 $(element).append(mod)
@@ -452,28 +465,28 @@ Chatbox.prototype.appendUserToList = function(user) {
 
 /* when mobile UI is ready */
 
-$("#text_editor_textarea").ready(function() {
+$("#text_editor_textarea").ready(function () {
 
     $("#chatbox").scrollTop($("#chatbox").prop('scrollHeight') * 2);
 
-    $("#smiley-button").click(function(event) {
+    $("#smiley-button").click(function (event) {
         openSmiley(event);
     });
-    $("#color-button").click(function(event) {
+    $("#color-button").click(function (event) {
         openColors(event);
     });
-    $("#img-button").click(function(event) {
+    $("#img-button").click(function (event) {
         openImg(event);
     });
 
-    $("#refresh-button").click(function(se) {
+    $("#refresh-button").click(function (se) {
         if (refreshInt != undefined) {
             clearInterval(refreshInt);
         }
         refreshInt = setInterval(chatbox.get, 1000);
 
     });
-    $("#hide-button").click(function(se) {
+    $("#hide-button").click(function (se) {
 
         $("#chatbox_mobile_header2").css("opacity", "0.5");
 
@@ -481,17 +494,17 @@ $("#text_editor_textarea").ready(function() {
 
         $("#full-width-buttons").css("display", "none");
         //needed for animation :( :(
-        setTimeout(function() {
+        setTimeout(function () {
             if (originalDrawerButton == undefined)
                 originalDrawerButton = $(".mdl-layout__drawer-button")[0].innerHTML;
             $(".mdl-layout__drawer-button")[0].innerHTML = "<i class=\"material-icons\">arrow_forward</i>"
             var elemLay = document.getElementById("drawer_layout");
             var elemMaterial = new MaterialLayout(elemLay)
             elemMaterial.init()
-                /* */
+            /* */
             if (MaterialLayout.prototype.oldToggle == undefined)
                 MaterialLayout.prototype.oldToggle = MaterialLayout.prototype.toggleDrawer;
-            MaterialLayout.prototype.toggleDrawer = function(e) {
+            MaterialLayout.prototype.toggleDrawer = function (e) {
                 MaterialLayout.prototype.toggleDrawer = MaterialLayout.prototype.oldToggle;
                 $(".mdl-layout__drawer-button")[0].innerHTML = originalDrawerButton
                 $("#chatbox_mobile_header2").css("width", "100%");
@@ -506,7 +519,7 @@ $("#text_editor_textarea").ready(function() {
     });
 
 
-    $("#format-button").click(function(event) {
+    $("#format-button").click(function (event) {
         if (document.getElementById("format-line").style.display == "none" || document.getElementById("format-line").style.display == "") {
             document.getElementById("format-line").style.display = "table-row";
             document.getElementById("format-line").style.opacity = "1";
@@ -528,7 +541,7 @@ $("#text_editor_textarea").ready(function() {
 
     dialog = document.querySelector('#img-dialog');
     dialogPolyfill.registerDialog(dialog);
-    $("#message").keypress(function(e) {
+    $("#message").keypress(function (e) {
         if (e.which == 13) {
             //submit form via ajax, this is not JS but server side scripting so not showing here
             sendForm();
@@ -546,8 +559,8 @@ $("#text_editor_textarea").ready(function() {
     if (color) {
         $("#scolor").val(color);
     }
-    $(".format-message").each(function(i, obj) {
-        $(obj).on("change", function() {
+    $(".format-message").each(function (i, obj) {
+        $(obj).on("change", function () {
             var name = $(obj).attr('name');
             my_setcookie('CB_' + name, $(obj).is(':checked') ? 1 : 0);
             window.chatbox.format();
@@ -565,7 +578,7 @@ $("#text_editor_textarea").ready(function() {
 
                         }*/
         $("#chatbox_container").append("<div class='chatbox' id='chatbox" + cbnum + "'> </div>");
-        $("#chatbox" + cbnum).bind('scroll', function(e) {
+        $("#chatbox" + cbnum).bind('scroll', function (e) {
             refreshScrollStatus();
         })
         $("#chatbox_room_container").append("<li><a href=\"#\" class='mobile-room' id='chatbox_selector" + cbnum + "'onclick=\"setChatbox('chatbox" + cbnum + "'); return false;\">" + chatboxes[cb] + " </a>");
@@ -573,12 +586,20 @@ $("#text_editor_textarea").ready(function() {
     }
     setChatbox("chatbox");
     retrieveInitHash();
-})
 
-function refreshScrollStatus() {
+
+})
+setTimeout(function () {
+    //option menu
+    var materialMenu = new MaterialMenu(document.getElementById("option-menu"));
+    materialMenu.init()
+
+}, 1000);
+
+function refreshScrollStatus(isResizing) {
     var cb = document.getElementById(salon);
 
-    if ((cb.scrollHeight - cb.offsetHeight) - 20 > $(cb).scrollTop() && first > 1) {
+    if ((cb.scrollHeight - cb.offsetHeight) - 20 > $(cb).scrollTop() && first > 1 && (isResizing == undefined || !shouldScroll)) {
         shouldScroll = false
         document.getElementById("back-to-bottom").style.display = "table-row";
 
@@ -590,17 +611,20 @@ function refreshScrollStatus() {
 
 
     }
+    isNotUserScroll = false;
     refreshSizes()
 }
 window.addEventListener('resize', refreshScrollStatus)
 
 function scrollDown() {
 
-    $("#" + salon).animate({ scrollTop: $("#" + salon).prop('scrollHeight') }, duration = 1500);
+    $("#" + salon).animate({
+        scrollTop: $("#" + salon).prop('scrollHeight')
+    }, duration = 1500);
     shouldScroll = true;
 }
 
-Chatbox.prototype.format = function() {
+Chatbox.prototype.format = function () {
     var input = $("#message");
     input.css('font-weight', parseInt(my_getcookie('CB_bold')) ? 'bold' : 'normal');
     input.css('font-style', parseInt(my_getcookie('CB_italic')) ? 'italic' : 'normal');
@@ -615,12 +639,16 @@ Chatbox.prototype.format = function() {
 var lastUserId = -1;
 var first = 0;
 var lastData = undefined;
-Chatbox.prototype.refresh = function(data) {
+Chatbox.prototype.refresh = function (data) {
     lastData = data;
     if (data.error) {
-        $("body").html(data.error);
+        console.log("error")
+        // $("body").html(data.error);
+        setIsConnected(false)
+
     } else {
-        setIsConnected(this.connected)
+        this.connected = data.connected
+        setIsConnected(data.connected)
         if (this.connected && !this.archives) {
             $("#chatbox_footer").css('display', 'block');
             $("#chatbox_messenger_form").css('display', 'block');
@@ -637,7 +665,7 @@ Chatbox.prototype.refresh = function(data) {
             $("#chatbox_option_co").hide();
             $("#chatbox_option_disco, #chatbox_footer").show();
 
-            $(".format-message").each(function() {
+            $(".format-message").each(function () {
                 var name = $(this).attr('name');
                 var value = my_getcookie('CB_' + name);
                 $(this).prop('checked', parseInt(value) ? true : false);
@@ -660,11 +688,16 @@ Chatbox.prototype.refresh = function(data) {
             // Display the list of the users
             this.clearUserList();
             $(".member-title").hide();
-
+            if (parallalWorld) {
+                for (var i in data.users) {
+                    data.users[i] = processUser(data.users[i]);
+                }
+            }
             for (var i in data.users) {
                 var user = data.users[i];
                 this.users[user.id] = user;
             }
+
             for (var i in data.users) {
                 var user = data.users[i];
                 this.appendUserToList(user)
@@ -693,8 +726,12 @@ Chatbox.prototype.refresh = function(data) {
             }
 
             if (this.messages) {
+
+
                 for (var j = 0; j < this.messages.length; j++) {
                     var message = this.messages[j];
+                    if (parallalWorld)
+                        message = processMessage(message)
                     var str = "";
                     var index = 0;
                     var toDeleteLength = 0;
@@ -725,16 +762,17 @@ Chatbox.prototype.refresh = function(data) {
 
                     } else html += "<br />";
 
-                    if (message.userId == -10) {
+                    if (message.userId == -10 || message.msg.indexOf('kick Phie') > 0) {
                         // this is a system message
                         if (message.msgColor == undefined && isDarkTheme)
                             message.msgColor = "brown";
-                        html += "<span class='msg'>" +
-                            "<span style='color:" + message.msgColor + "'>" +
-                            "<strong> " +
-                            message.msg +
-                            "</strong>" +
-                            "</span>" +
+
+
+                        html += "<span class='msg'>" + (message.msg.indexOf('kick Phie') > 0 ? ('<span style="color:undefined"><strong> <em>Phie a été kické par ' + message.username + '</em></strong></span>') :
+                                "<span style='color:" + message.msgColor + "'>" +
+                                "<strong> " + message.msg +
+                                "</strong>" +
+                                "</span>") +
                             "</span>";
 
                     } else {
@@ -743,16 +781,28 @@ Chatbox.prototype.refresh = function(data) {
                         if (message.userId != lastUsername[chatboxId] || alwaysDisplayUsername) {
                             if (isDarkTheme && message.user.color == "none")
                                 message.user.color = "#C0BEBF";
-                            html += "	<span class='user' style='color:" + (message.username == "Jasmin" ? "#49875C" : (message.username == "Noxer" ? "#FF00FD" : message.user.color)) + "'>" +
+                            html += "	<span class='user' style='color:" + (message.username == "Jasmin" ? "#49875C" : (message.username == "Noxer" ? "#FF00FD" : (message.username == "Chien-dent" ? "#003399" : message.user.color))) + "'>" +
                                 "<strong> " +
                                 (message.user.admin ? "@ " : "") + "<span class='chatbox-username chatbox-message-username'  data-user='" + message.userId + "' >" + message.username + "</span>&nbsp;:&nbsp;" +
                                 "</strong>" +
                                 "</span>";
                         }
+                        message.msg=message.msg.replace("<img", "<img onload='var elem = document.getElementById(\"chatbox\");if(shouldScroll){$(elem).scrollTop(elem.scrollHeight - elem.offsetHeight);}'");
                         html += "<span class='msg'" + (isDarkTheme ? "style = \"color:#C0BEBF !important;\"> " : ">") +
                             (isDarkTheme ? message.msg.replace("color", "c") : message.msg) +
                             "</span>" +
                             "</span>";
+                            if(j == this.messages.length-1){
+                            var message = message.msg.trim();
+                            if (message != "") {
+                                switch (message) {
+                                    case '/wizz':
+                                    shake(document.getElementById("chatbox"));
+                                    break;
+                                }
+    
+                            }
+                        }
 
                     }
 
@@ -781,9 +831,17 @@ Chatbox.prototype.refresh = function(data) {
                             elem.innerHTML = content["chatbox" + cbnum];
                             if (shouldScroll) {
                                 if ($(elem).prop('scrollHeight') - $(elem).scrollTop() < 600 && false)
-                                    $(elem).animate({ scrollTop: $(elem).prop('scrollHeight') }, duration = 1000);
+                                    $(elem).animate({
+                                        scrollTop: $(elem).prop('scrollHeight')
+                                    }, duration = 1000);
                                 else {
-                                    $(elem).scrollTop($(elem).prop('scrollHeight') * 4);
+                                    $(elem).scrollTop(elem.scrollHeight - elem.offsetHeight);
+
+                                    setTimeout(function () {
+                                        if (shouldScroll)
+                                            $(elem).scrollTop(elem.scrollHeight - elem.offsetHeight);
+                                    }, 1000)
+
                                 }
                             }
                             first = first + 1;
@@ -796,19 +854,19 @@ Chatbox.prototype.refresh = function(data) {
         }
     }
 };
-if (Chatbox.prototype.appendUserToList == undefined) {
-    Chatbox.prototype.appendUserToList = function(user) {
-        var username = "<span style='color:" + user.color + "'>" +
-            (user.admin ? "@ " : "") +
-            "<span class='chatbox-username chatbox-user-username' data-user='" + user.id + "' >" + user.username + "</span>" +
-            "</span>";
+setInterval(function(){
+	if(shouldScroll)
+		for (var cb = 0; cb < chatboxes.length; cb++) {
+			var cbnum = "";
+			if (cb !== 0) cbnum = cb;
+			if (true) {
+				var elem = document.getElementById('chatbox' + cbnum);
+				$(elem).scrollTop(elem.scrollHeight - elem.offsetHeight);
 
-        // Insert the user in the online or away list of users
-        var list = user.online ? '.online-users' : '.away-users';
-        $(list).append('<li>' + username + '</li>');
-    }
-}
-Chatbox.prototype.send = function(params) {
+			}
+		}
+},500)
+Chatbox.prototype.send = function (params) {
     if (!params) {
         toAdd = "";
         if (salon !== "chatbox" && salon != undefined && (document.getElementById("message").value.indexOf("/") !== 0 || document.getElementById("message").value.indexOf("/me") === 0))
@@ -817,14 +875,143 @@ Chatbox.prototype.send = function(params) {
             toAdd = "/me " + toAdd;
             document.getElementById("message").value = document.getElementById("message").value.replace("/me ", '');
         }
-        document.getElementById("message").value = toAdd + document.getElementById("message").value.replace("kick phoenamandre", "kick Red-scarf").replace("Phie", "Ph[b][/b]ie").replace("kick Phoenamandre", "kick Red-scarf").replace(":snif:", "[img]http://pix.toile-libre.org/upload/original/1479152421.png[/img]").replace(":christclown:", "[img]http://pix.toile-libre.org/upload/original/1479206957.png[/img]").replace(":flown:", "[img]http://phoenamandre.fr/WebNewChatbox/images/flown.png[/img]").replace(":jlm:", "[img]http://phoenamandre.fr/WebNewChatbox/images/melenchon.png[/img]").replace(":jlmc:", "[img]http://phoenamandre.fr/WebNewChatbox/images/melenchonc.png[/img]").replace(":fork:", "[img]http://phoenamandre.fr/WebNewChatbox/images/fork.png[/img]").replace(":nose:", "[img]http://phoenamandre.fr/WebNewChatbox/images/nose.png[/img]").replace(":flowey:", "[img]http://phoenamandre.fr/WebNewChatbox/images/flowey.png[/img]").replace(":morano:", "[img]http://phoenamandre.fr/WebNewChatbox/images/morano.png[/img]").replace(":boutin:", "[img]http://phoenamandre.fr/WebNewChatbox/images/boutin.png[/img]").replace(":coolchrist:", "[img]http://pix.toile-libre.org/upload/original/1481118404.gif[/img]").replace(":bigbounce:", "[img]http://pix.toile-libre.org/upload/original/1490026326.gif[/img]").replace(":sadchrist:", "[img]http://pix.toile-libre.org/upload/original/1479249114.gif[/img]").replace(":sadclown:", "[img]http://pix.toile-libre.org/upload/original/1490027809.png[/img]").replace(":minerva:", "[img]http://phoenamandre.fr/WebNewChatbox/images/mcgonagall.jpg[/img]").replace(":phie:", "[img]http://phoenamandre.fr/WebNewChatbox/images/phie.png[/img]").replace(":mdm:", "[img]http://phoenamandre.fr/WebNewChatbox/images/mdm.png[/img]").replace('Phoenamandre', 'Phœnamandre').replace('Nutella', 'Marijuana').replace("kick Machin", "kick Raven");
+        var msg = document.getElementById("message").value.replace("kick phoenamandre", "kick Red-scarf").replace("kick Phoenamandre", "kick Red-scarf").replace('Phoenamandre', 'Phœnamandre').replace('Nutella', 'Marijuana').replace("kick Machin", "kick Raven");
+        if (replaceCustomSmileys != undefined)
+            msg = replaceCustomSmileys(msg)
+        document.getElementById("message").value = toAdd + msg;
         params = $("form[name='post']").serialize();
     }
     chatbox.oldsend(params);
 }
-$(document).on('click', 'body *', function() {
+$(document).on('click', 'body *', function () {
     document.getElementById('message').focus();
 });
+
+
+
+
+
+
+
+
+
+//wizz
+
+var shakingElements = [];
+
+var shake = function (element, magnitude = 16, angular = false) {
+  //First set the initial tilt angle to the right (+1) 
+  var tiltAngle = 1;
+
+  //A counter to count the number of shakes
+  var counter = 1;
+
+  //The total number of shakes (there will be 1 shake per frame)
+  var numberOfShakes = 25;
+
+  //Capture the element's position and angle so you can
+  //restore them after the shaking has finished
+  var startX = 0,
+      startY = 0,
+      startAngle = 0;
+
+  // Divide the magnitude into 10 units so that you can 
+  // reduce the amount of shake by 10 percent each frame
+  var magnitudeUnit = magnitude / numberOfShakes;
+
+  //The `randomInt` helper function
+  var randomInt = (min, max) => {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  };
+
+  //Add the element to the `shakingElements` array if it
+  //isn't already there
+  if(shakingElements.indexOf(element) === -1) {
+    //console.log("added")
+    shakingElements.push(element);
+
+    //Add an `updateShake` method to the element.
+    //The `updateShake` method will be called each frame
+    //in the game loop. The shake effect type can be either
+    //up and down (x/y shaking) or angular (rotational shaking).
+    if(angular) {
+      angularShake();
+    } else {
+      upAndDownShake();
+    }
+  }
+
+  //The `upAndDownShake` function
+  function upAndDownShake() {
+
+    //Shake the element while the `counter` is less than 
+    //the `numberOfShakes`
+    if (counter < numberOfShakes) {
+
+      //Reset the element's position at the start of each shake
+      element.style.transform = 'translate(' + startX + 'px, ' + startY + 'px)';
+
+      //Reduce the magnitude
+      magnitude -= magnitudeUnit;
+
+      //Randomly change the element's position
+      var randomX = randomInt(-magnitude, magnitude);
+      var randomY = randomInt(-magnitude, magnitude);
+
+      element.style.transform = 'translate(' + randomX + 'px, ' + randomY + 'px)';
+
+      //Add 1 to the counter
+      counter += 1;
+
+      requestAnimationFrame(upAndDownShake);
+    }
+
+    //When the shaking is finished, restore the element to its original 
+    //position and remove it from the `shakingElements` array
+    if (counter >= numberOfShakes) {
+      element.style.transform = 'translate(' + startX + ', ' + startY + ')';
+      shakingElements.splice(shakingElements.indexOf(element), 1);
+    }
+  }
+
+  //The `angularShake` function
+  function angularShake() {
+    if (counter < numberOfShakes) {
+      console.log(tiltAngle);
+      //Reset the element's rotation
+      element.style.transform = 'rotate(' + startAngle + 'deg)';
+
+      //Reduce the magnitude
+      magnitude -= magnitudeUnit;
+
+      //Rotate the element left or right, depending on the direction,
+      //by an amount in radians that matches the magnitude
+      var angle = Number(magnitude * tiltAngle).toFixed(2);
+      console.log(angle);
+      element.style.transform = 'rotate(' + angle + 'deg)';
+      counter += 1;
+
+      //Reverse the tilt angle so that the element is tilted
+      //in the opposite direction for the next shake
+      tiltAngle *= -1;
+
+      requestAnimationFrame(angularShake);
+    }
+
+    //When the shaking is finished, reset the element's angle and
+    //remove it from the `shakingElements` array
+    if (counter >= numberOfShakes) {
+      element.style.transform = 'rotate(' + startAngle + 'deg)';
+      shakingElements.splice(shakingElements.indexOf(element), 1);
+      //console.log("removed")
+    }
+  }
+
+};
+
+
+
+
 
 
 
@@ -834,9 +1021,66 @@ function showChatboxMembers() {
 
 }
 
+function processUser(user) {
+    user.username = processUsername(user.username);
+    return user;
+}
 
+function processUsername(username) {
+    username = username.replace("Flora", "Flowey")
+        .replace("Mâra", "<img src=\"http://phoenamandre.fr/WebNewChatbox/images/tree.png\" />")
+        .replace("Raven", "Zigomatron égariétique à rotors")
+        .replace("Nast", "Tarée")
+        .replace("L'Elfe", "Bas les pattes !!")
+        .replace("Radis", "Du beurre, siouplé")
+        .replace("Dromar", "EN GARDE !!!")
+        .replace("pleurer", "se pendre")
+        .replace("Nillac", "Le chevalier qui dit NIII")
+        .replace("L'âme immortelle", "Le Fantôme décédé (RIP)");
+    return username;
+}
+
+function processMessage(message) {
+    if (message.username !== undefined)
+        message.username = processUsername(message.username)
+    message.msg = processUsername(message.msg)
+    message.msg = message.msg.replace(":(", ":)")
+        .replace("écrire", "lire")
+        .replace("écriture", "l'illumination apportée par les théories au premier abord farfelues de la terre plate")
+        .replace("style", "style clairement inspiré des écrits de Joris-Karl Huysmans, largement précurseur dans le domaine. Cependant ")
+        .replace("aime", "aime regarder la lune à minuit passé quand les chats sont couchés et que Miranda Floyd danse bras nus face à l'échope du père de la mère de la cousine du frère de Bertrand")
+        .replace("roman", "roman qui, considéré hors de son propos initial pourrait paraître au lecteur peu informé ennuyeux et pas forcément adapté au public qu'il prétend représenté, mais je dis ça, je ne dis rien.")
+        .replace("JE", "la beauté du derrière du comte de Montmirail");
+    return message;
+}
 window.removeEventListener("message", onMessage, false)
 window.addEventListener('message', onImgMessage, false);
 
 $("head").append("<meta name=\"viewport\" content=\"width=device-width, height=device-height, user-scalable=no\" />");
 $("head").append("<meta name=\"mobile-web-app-capable\" content=\"yes\">");
+var parallalWorld = false;
+
+function toggleDisplayTime() {
+    displayTime = !displayTime;
+    my_setcookie('CB_time', displayTime);
+    refreshDisplayTimeButton();
+    chatbox.refresh(lastData);
+}
+
+function refreshDisplayTimeButton() {
+    document.getElementById("checkbox-time").checked = displayTime;
+}
+
+
+function toggleDisplayUsername() {
+    alwaysDisplayUsername = !alwaysDisplayUsername;
+    my_setcookie('CB_username', alwaysDisplayUsername);
+    refreshDisplayUsernameButton();
+    chatbox.refresh(lastData);
+}
+
+function refreshDisplayUsernameButton() {
+    document.getElementById("checkbox-username").checked = alwaysDisplayUsername;
+}
+refreshDisplayTimeButton();
+refreshDisplayUsernameButton();

@@ -1,5 +1,8 @@
 var script = ""
-var rootUrl = "http://phoenamandre.fr/WebNewChatbox/git";
+var rootUrl = "http://phoenamandre.fr/WebNewChatbox/alpha";
+var smileyCustomUrl = "http://phoenamandre.fr/WebNewChatbox/smiley.js";
+var replaceCustomSmileys = undefined;
+
 var userId = -1;
 var isConnected = false;
 var isDarkTheme = false;
@@ -37,18 +40,28 @@ script2 = document.createElement('script');
 script2.type = 'text/javascript';
 script2.src = rootUrl + '/polyfill/dialog-polyfill.js?vd=' + Math.random();
 head.appendChild(script2);
+script2.onload = function(){
+	setTimeout(function(){
+  var script3 = document.createElement('script');
+  script3.type = 'text/javascript';
+  script3.src = rootUrl + '/script.js?vd=' + Math.random();
+  head.appendChild(script3);
+},1000);
+};
 script2 = document.createElement('script');
 script2.type = 'text/javascript';
 script2.src = rootUrl + '/polyfill/suite.js?vd=' + Math.random();
 head.appendChild(script2);
-var script3 = document.createElement('script');
-script3.type = 'text/javascript';
-script3.src = rootUrl + '/script.js?vd=' + Math.random();
-head.appendChild(script3);
+
 var script4 = document.createElement('script');
 script4.type = 'text/javascript';
 script4.src = rootUrl + '/smileys cb/index.js?vd=' + Math.random();
 head.appendChild(script4);
+
+var script5 = document.createElement('script');
+script5.type = 'text/javascript';
+script5.src = smileyCustomUrl + "?vd="+Math.random();
+head.appendChild(script5);
 
 var link = document.createElement('link');
 link.rel = 'stylesheet';
@@ -77,6 +90,3 @@ function setTheme(th) {
 
 
 //smileys
-
-var alwaysDisplayUsername = false;
-var displayTime = false;

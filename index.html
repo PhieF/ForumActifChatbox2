@@ -24,7 +24,17 @@
                 <button style="right:10px;" id="refresh-button" onclick="" class="mdl-button mdl-js-button mdl-button--icon">
                    <i class="material-icons">refresh</i>
                 </button>
-
+                <button id="option-menu-button" class="mdl-button mdl-js-button mdl-button--icon">
+                     <i class="material-icons">more_vert</i>
+                </button>
+                <ul id="option-menu" class="mdl-menu mdl-menu--unaligned mdl-js-menu mdl-js-ripple-effect" for="option-menu-button">
+                    <li class="mdl-menu__item" id="display-time" onclick="toggleDisplayTime()">
+                        <input id="checkbox-time" type="checkbox" onclick="return false;" /> Afficher l'heure des messages
+                    </li>
+                    <li class="mdl-menu__item" onclick="toggleDisplayUsername()">
+                        <input id="checkbox-username" type="checkbox" onclick="return false;" /> Rappeler le pseudo à chaque ligne
+                    </li>
+                </ul>
             </div>
 
         </div>
@@ -59,7 +69,10 @@
         </ul>
         <span style="text-align:center; margin-top:10px;">
                 <a href="http://jeunesecrivains.superforum.fr/chatbox/index.forum" class='mobile-room'>Ancienne chatbox</a>
-                </span>
+        </span>
+        <span style="text-align:center; margin-top:10px;">
+                <a href="http://jeunesecrivains.superforum.fr/login" class='mobile-room'>Connexion</a>
+        </span>
     </div>
     <main class="mdl-layout__content" style="overflow:hidden;height:100%;right:0px;">
 
@@ -103,6 +116,9 @@
                                     <button id="img-button" class="mdl-button mdl-js-button mdl-button--icon " onclick="return false;">
 <i class="material-icons">add_a_photo</i>
                                     </button>
+                                    <button id="gif-button" class="mdl-button mdl-js-button mdl-button--icon " onclick="return false;">
+<i class="material-icons">add_a_photo</i>
+                                    </button>
 
 
                             </tr>
@@ -112,16 +128,11 @@
                                 <i class="material-icons ">text_format</i>
                                 </button>
                                 </td>
-                                <td style="width:100%">
+                                <td style="width:100%; padding-right:5px;">
 
-                                    <div class="mdl-textfield mdl-js-textfield" style="
-                                    position:absolute; 
-                                    bottom:-5px;
-                                    padding-right:50px; width:100%;">
-                                        <input name="scolor" id="scolor" type="hidden">
-                                        <input onblur="this.focus()" autofocus style="outline: none;width:100%;resize: none;height:20px; overflow:hidden;" class="mdl-textfield__input " type="text " rows="1" autocomplete="on" name="message" id="message"></input>
-                                        <label class="mdl-textfield__label " for="sample1 ">Text...</label>
-                                    </div>
+
+                                    <input name="scolor" id="scolor" type="hidden">
+                                    <input onblur="this.focus()" autofocus style="outline: none;width:100%;resize: none;height:20px; overflow:hidden;" class="mdl-textfield__input " type="text " rows="1" autocomplete="off" name="message" id="message"></input>
 
                                 </td>
                             </tr>
@@ -169,4 +180,15 @@
     </div>
 </dialog>
 
+
+<dialog id="gif-dialog" class="mdl-dialog">
+    <div class="mdl-dialog__content" style="padding:0px;">
+        <a onclick="closeGifDialog(); return false;" href="#">Fermer</a>
+
+        <div id="gif-dialog-content" style="overflow-x: auto;  padding:0px;">
+            <div id="p2" class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
+
+        </div>
+    </div>
+</dialog>
 <input type="hidden" id="text_editor_textarea" />
